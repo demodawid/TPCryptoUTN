@@ -28,11 +28,7 @@ public class MICKEY extends MICKEYBase {
     
     ///////////////////////////////////////////////////////////////////////////
     
-    final static void clockR(
-          int input_bit,
-          int control_bit,
-          int[] R,
-          int[] S) {
+    final static void clockR(int input_bit, int control_bit, int[] R, int[] S) {
         int Feedback_bit;
         int Carry0, Carry1;
 
@@ -58,11 +54,7 @@ public class MICKEY extends MICKEYBase {
         }
     }    
     
-    final static void clockS(
-      int input_bit,
-      int control_bit,
-      int[] R,
-      int[] S) {
+    final static void clockS(int input_bit, int control_bit, int[] R, int[] S) {
         int Feedback_bit;
         int Carry0, Carry1;
 
@@ -112,12 +104,7 @@ public class MICKEY extends MICKEYBase {
         return 10;  // 80bit
     }
     
-    public void process(
-            byte[] inBuf, 
-            int inOfs, 
-            byte[] outBuf, 
-            int outOfs, 
-            int len) throws Exception {
+    public void process(byte[] inBuf, int inOfs, byte[] outBuf, int outOfs, int len) throws Exception {
         int inEnd;
         int reg;
         int Feedback_bit;
