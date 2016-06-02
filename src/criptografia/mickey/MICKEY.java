@@ -28,6 +28,9 @@ public class MICKEY extends MICKEYBase {
     
     ///////////////////////////////////////////////////////////////////////////
     
+    /*
+     * El registro R es el LINEAL, del tipo Galois
+     */
     final static void clockR(int input_bit, int control_bit, int[] R, int[] S) {
         int Feedback_bit;
         int Carry0, Carry1;
@@ -35,13 +38,19 @@ public class MICKEY extends MICKEYBase {
         Feedback_bit = ((R[2] >>> 15) & 1) ^ input_bit;
         Carry0 = (R[0] >>> 31) & 1;
         Carry1 = (R[1] >>> 31) & 1;
-
+        
+        /*
+         * Según el bit de control, nos desplazamos normalmente 
+         * o con un XOR a si mismo extra
+         */
         if (0 != control_bit) {
-            R[0] ^= (R[0] << 1);
+        	//Esta operación equivale a multiplicar por x+1 o desplazar J veces
+            R[0] ^= (R[0] << 1); //Operación de XOR con si mismo desplazado
             R[1] ^= (R[1] << 1) ^ Carry0;
             R[2] ^= (R[2] << 1) ^ Carry1;
         }
         else {
+        	//Esta operación equivale a multiplicar por x
             R[0] <<= 1;
             R[1] = (R[1] << 1) ^ Carry0;
             R[2] = (R[2] << 1) ^ Carry1;
@@ -53,7 +62,9 @@ public class MICKEY extends MICKEYBase {
             R[2] ^= R_Mask2;
         }
     }    
-    
+    /*
+     * El registro ese es NO LINEAL y se desplaza de formas distintas según el bit de control
+     */
     final static void clockS(int input_bit, int control_bit, int[] R, int[] S) {
         int Feedback_bit;
         int Carry0, Carry1;
@@ -80,10 +91,7 @@ public class MICKEY extends MICKEYBase {
         }
     }
     
-    final static int clockKG1(
-            int input_bit,
-            int[] R,
-            int[] S) {
+    final static int clockKG1(int input_bit, int[] R, int[] S) {
         int Keystream_bit;
         int control_bit_r;
         int control_bit_s;
@@ -104,6 +112,27 @@ public class MICKEY extends MICKEYBase {
         return 10;  // 80bit
     }
     
+    public void processMio(byte[] inBuf, int inOfs, byte[] outBuf, int outOfs, int len) throws Exception{
+        int inEnd;
+        int reg;
+        
+        inEnd = inOfs + len;
+        
+        int[] R = {R0, R1, R2};
+        int[] S = {S0, S1, S2};
+        
+        /*
+         * Esto no funciona todavía!
+         */
+        while (inOfs < inEnd) {
+        	reg = inBuf[inOfs++];
+        	for (int s = 7; s >= 0; s--) {
+        		reg ^= clockKG1(0, R, S);		
+        	}
+        	outBuf[outOfs++] = (byte)reg;
+        }
+    }
+    
     public void process(byte[] inBuf, int inOfs, byte[] outBuf, int outOfs, int len) throws Exception {
         int inEnd;
         int reg;
@@ -115,7 +144,7 @@ public class MICKEY extends MICKEYBase {
         int S0, S1, S2;
 
         // a CPU with lots of registers helps to speed this one up
-        R0 = this.R0;
+        R0 = this.R0 ;
         R1 = this.R1;
         R2 = this.R2;
         S0 = this.S0;
@@ -238,4 +267,6 @@ public class MICKEY extends MICKEYBase {
         this.S1 = S[1];
         this.S2 = S[2];
     }
+    
+
 }
